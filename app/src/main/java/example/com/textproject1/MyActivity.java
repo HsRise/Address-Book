@@ -36,22 +36,31 @@ public class MyActivity extends Activity {
             @Override
             public void onClick(View v) {
                 final ArrayList name = new ArrayList();
-                final ArrayList number = new ArrayList();
+                ArrayList number = null;
                 final ArrayList<ArrayList> detail = new ArrayList<ArrayList>();
                 Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI
                 ,null,null,null,null);//projection 是每行要包含的列们
                 while (cursor.moveToNext()){
                     String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                     String theName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    int p = 0;
                     name.add(theName);
+                    number = new ArrayList();
                     Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,ContactsContract.CommonDataKinds
                             .Phone.CONTACT_ID + "=" +id,null,null);
                     while (phones.moveToNext()){
+                        p = 1;
                         String theNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         number.add(theNumber);
 
                     }
-                    detail.add(number);
+                    if(p == 0){
+                        ArrayList al = new ArrayList();
+                        al.add("无");
+                        detail.add(al);
+                    }else if(p == 1) {
+                        detail.add(number);
+                    }
                     phones.close();
                 }
                 cursor.close();
@@ -128,7 +137,7 @@ public class MyActivity extends Activity {
                 list.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                     public void showNumber(String name,String number){
                         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number));
-                        startActivity(intent);
+                        MyActivity.this.startActivity(intent);
                         Toast.makeText(MyActivity.this,"正在拨打联系人"+name+"的电话"+number,Toast.LENGTH_LONG).show();
                     }
                     @Override
